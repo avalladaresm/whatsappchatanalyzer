@@ -1,0 +1,24 @@
+# Changelog
+This is my first time doing a changelog, so I will try it to keep it plain and simple.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+
+
+## [Planned features]
+- WhatsApp for iOS exported chats support
+- Group chats
+- A bit more graphs, don't know what will be displayed yet...
+- Dashboard JPG/PNG export
+- Chat view
+    - View messages per day or ranges of days
+- Whatever comes to my mind later...
+
+## [0.0.1] - 2020-05-31
+### Added
+- Initial release, pre-alpha version probably?
+- Chats exported from WhatsApp for Android can be loaded
+- Graphs showing total messages overtime and messages per person
+- Support for 2-person chats
+- Calendar decoration showing which days the user messaged to other person
