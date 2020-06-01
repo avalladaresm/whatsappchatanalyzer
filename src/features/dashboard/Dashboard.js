@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Card, DatePicker, Descriptions, Input, Modal, Button, Radio, Select } from 'antd';
+import { Card, DatePicker, Descriptions, Input, Modal, Button, Radio, Affix } from 'antd';
 import { Chart, Tooltip, Axis, Line, Legend } from 'viser-react';
 import { MessageBox, SystemMessage } from 'react-chat-elements-av';
 import Mayre from 'mayre';
@@ -14,7 +14,6 @@ const { RangePicker } = DatePicker;
 const dateFormat = 'MM/DD/YY';
 
 const { Search } = Input;
-const Option = Select.Option;
 
 class Dashboard extends React.Component {
 	constructor(props) {
@@ -26,7 +25,7 @@ class Dashboard extends React.Component {
 		};
 	}
 
-	showModal = () => {
+	showChatModal = () => {
 		this.setState({
 			visible: true
 		});
@@ -60,8 +59,6 @@ class Dashboard extends React.Component {
 			}
 			return participants;
 		};
-
-		const noParticipants = participants.length ? false : true;
 
 		const label = {
 			textStyle: {
@@ -97,9 +94,7 @@ class Dashboard extends React.Component {
 		return (
 			<div>
 				<Descriptions title="General Info">
-					<Descriptions.Item label="Total messages">
-						{totalMessages}
-					</Descriptions.Item>
+					<Descriptions.Item label="Total messages">{totalMessages}</Descriptions.Item>
 					{countOfTotalMessagesPerSender.map((item, k) => {
 						return (
 							<Descriptions.Item key={k} label={'Messages by ' + item.name}>
@@ -109,6 +104,11 @@ class Dashboard extends React.Component {
 					})}
 				</Descriptions>
 				<br />
+				<Affix offsetTop={20}>
+					<Button type="primary" onClick={this.showChatModal} icon={<LineChartOutlined />}>
+						View chat
+					</Button>
+				</Affix>
 				<Search
 					placeholder="Search for a word"
 					onSearch={showSearchWordOccurrences}
@@ -189,15 +189,7 @@ class Dashboard extends React.Component {
 					}
 					when={this.state.showGraph === 1}
 				/>
-				{/*<Button type="primary" onClick={this.showModal} icon={<LineChartOutlined />}>
-					Open Modal
-				</Button>
-				 <Modal
-					title="Basic Modal"
-					visible={this.state.visible}
-					onCancel={this.handleCancel}
-					style={{ top: 20 }}
-				>
+				<Modal title="Chat View" visible={this.state.visible} onCancel={this.handleCancel} >
 					{arrayOfObjectsOfDateTextPositionTypeForChatComponent.map((message, key) => (
 						<MessageBox
 							key={key}
@@ -209,7 +201,7 @@ class Dashboard extends React.Component {
 					))}
 
 					<SystemMessage type="text" text={'End of conversation'} />
-				</Modal> */}
+				</Modal>
 			</div>
 		);
 	}

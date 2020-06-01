@@ -394,11 +394,19 @@ class ChatData extends React.Component {
 	};
 
 	arrayOfObjectsOfDateTextPositionTypeForChatComponent = () => {
-		/*
-			Had some hardcoded values that only worked with one specific chat,
-			which I was using for testing purposes. Will update function in 
-			further releases... In the mean time, chat view won't be working.
-		*/
+		let { globalData, selectedUser } = this.state;
+		let data = [];
+
+		for (let i = 0; i < globalData.total; i++) {
+			data.push({
+				date: globalData.time[i],
+				text: globalData.content[i], //messageContent
+				position: globalData.sender[i] === selectedUser ? 'right' : 'left',
+				type: 'text'
+			});
+		}
+
+		return data;
 	};
 
 	arrayOfCountOfMessagesPerHour = () => {
