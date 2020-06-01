@@ -604,6 +604,7 @@ class ChatData extends React.Component {
 								participants={this.getParticipants()}
 								participantsJoined={this.getParticipantsJoined()}
 								countOfMessagesPerSenderPerDate={this.countOfMessagesPerSenderPerDate()}
+								totalMessages={this.state.globalData.total}
 							/>
 						</div>
 					}
