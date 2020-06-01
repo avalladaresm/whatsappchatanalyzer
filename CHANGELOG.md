@@ -33,3 +33,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Graphs showing total messages overtime and messages per person
 - Support for 2-person chats
 - Calendar decoration showing which days the user messaged to other person
+
+[0.0.2]: https://github.com/avalladaresm/whatsappchatanalyzer/compare/v0.0.1...v0.0.2
+[0.0.1]: https://github.com/avalladaresm/whatsappchatanalyzer/releases/tag/v0.0.1
