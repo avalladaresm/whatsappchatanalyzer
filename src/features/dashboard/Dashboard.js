@@ -189,7 +189,13 @@ class Dashboard extends React.Component {
 					}
 					when={this.state.showGraph === 1}
 				/>
-				<Modal title="Chat View" visible={this.state.visible} onCancel={this.handleCancel} >
+				<Modal
+					title="Chat View"
+					visible={this.state.visible}
+					onCancel={this.handleCancel}
+					footer={null}
+					className="chatModal"
+				>
 					{arrayOfObjectsOfDateTextPositionTypeForChatComponent.map((message, key) => (
 						<MessageBox
 							key={key}

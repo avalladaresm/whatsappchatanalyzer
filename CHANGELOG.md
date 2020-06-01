@@ -21,6 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - System messages in chat such as `<Sender name> security code changed. Tap for more info.` and `Messages to this chat and calls are now secured with end-to-end encryption. Tap for more info.` are not supported yet, so if your exported chat file has them, the file will not be loaded.
 - Chat view doesn't show separation between days
 
+## [0.0.2] - 2020-06-01
+### Added
+- Chat view
+- Radio buttons for graphs
+
 ## [0.0.1] - 2020-05-31
 ### Added
 - Initial release, pre-alpha version probably?

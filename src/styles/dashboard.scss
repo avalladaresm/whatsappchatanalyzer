@@ -1,0 +1,7 @@
+.chatModal {
+    top: 20px;
+    .ant-modal-body  {
+        overflow-y: scroll;
+        height: 75vh;
+    }
+}
