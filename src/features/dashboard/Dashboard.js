@@ -50,7 +50,8 @@ class Dashboard extends React.Component {
 			countOfTotalMessagesPerSender,
 			showSearchWordOccurrences,
 			participants,
-			participantsJoined
+			participantsJoined,
+			totalMessages
 		} = this.props;
 		const uniqDates = _.uniq(arrayOfDatesPerChatLine);
 		let p = () => {
@@ -96,9 +97,9 @@ class Dashboard extends React.Component {
 		return (
 			<div>
 				<Descriptions title="General Info">
-					{/* <Descriptions.Item label="Total messages">
-						{arrayOfObjectsOfDateTextPositionTypeForChatComponent.length}
-					</Descriptions.Item> */}
+					<Descriptions.Item label="Total messages">
+						{totalMessages}
+					</Descriptions.Item>
 					{countOfTotalMessagesPerSender.map((item, k) => {
 						return (
 							<Descriptions.Item key={k} label={'Messages by ' + item.name}>
@@ -224,7 +225,7 @@ Dashboard.propTypes = {
 	participants: PropTypes.array,
 	participantsJoined: PropTypes.array,
 	countOfMessagesPerSenderPerDate: PropTypes.array,
-	justaTest: PropTypes.object
+	totalMessages: PropTypes.number
 };
 
 export default Dashboard;
