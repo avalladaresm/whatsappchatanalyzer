@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Card, DatePicker, Descriptions, Input, Modal, Button, Radio, Select } from 'antd';
 import { Chart, Tooltip, Axis, Line, Legend } from 'viser-react';
 import { MessageBox, SystemMessage } from 'react-chat-elements-av';
+import Mayre from 'mayre';
 import moment from 'moment';
 import 'react-chat-elements-av/dist/main.css';
 import _ from 'lodash';
@@ -20,7 +21,8 @@ class Dashboard extends React.Component {
 		super(props);
 		this.state = {
 			words: 0,
-			visible: false
+			visible: false,
+			showGraph: 1
 		};
 	}
 
@@ -34,6 +36,10 @@ class Dashboard extends React.Component {
 		this.setState({
 			visible: false
 		});
+	};
+
+	changeCurrentGraph = (e) => {
+		this.setState({ showGraph: e.target.value });
 	};
 
 	render() {
@@ -134,29 +140,8 @@ class Dashboard extends React.Component {
 						);
 					}}
 				/>
-				<Card title="Messages">
-					<div>
-						<Chart
-							forceFit
-							data={data}
-							height={400}
-							padding={[ 30, 20, 50, 30 ]}
-							scale={[
-								{
-									dataKey: 'date',
-									tickCount: 10
-								}
-							]}
-						>
-							<Tooltip crosshairs={true} />
-							<Axis dataKey="date" label={labelFormat} />
-							<Axis dataKey="messages" label={label} />
-							<Line position="date*messages" />
-						</Chart>
-					</div>
-				</Card>
 
-				<Radio.Group size="large" buttonStyle="solid">
+				<Radio.Group size="large" buttonStyle="solid" defaultValue={1} onChange={this.changeCurrentGraph}>
 					<Radio.Button value={1}>
 						<span>
 							<LineChartOutlined />
@@ -168,17 +153,41 @@ class Dashboard extends React.Component {
 						</span>
 					</Radio.Button>
 				</Radio.Group>
-				<Card title="Messages per person">
-					<div>
-						<Chart forceFit data={data2} height={400} scale={scale}>
-							<Legend />
-							<Tooltip crosshairs={true} />
-							<Axis />
-							{/* <Axis dataKey="messages" label={this.label} /> */}
-							<Line position="date*messages" color="person" />
-						</Chart>
-					</div>
-				</Card>
+				<Mayre
+					of={
+						<Card title="Total messages per day over time">
+							<Chart
+								forceFit
+								data={data}
+								height={400}
+								padding={[ 30, 20, 50, 30 ]}
+								scale={[
+									{
+										dataKey: 'date',
+										tickCount: 10
+									}
+								]}
+							>
+								<Tooltip crosshairs={true} />
+								<Axis dataKey="date" label={labelFormat} />
+								<Axis dataKey="messages" label={label} />
+								<Line position="date*messages" />
+							</Chart>
+						</Card>
+					}
+					or={
+						<Card title="Messages per person per day">
+							<Chart forceFit data={data2} height={400} scale={scale}>
+								<Legend />
+								<Tooltip crosshairs={true} />
+								<Axis />
+								{/* <Axis dataKey="messages" label={this.label} /> */}
+								<Line position="date*messages" color="person" />
+							</Chart>
+						</Card>
+					}
+					when={this.state.showGraph === 1}
+				/>
 				{/*<Button type="primary" onClick={this.showModal} icon={<LineChartOutlined />}>
 					Open Modal
 				</Button>
