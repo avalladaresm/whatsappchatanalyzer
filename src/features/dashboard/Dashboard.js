@@ -102,21 +102,6 @@ class Dashboard extends React.Component {
 					})}
 				</Descriptions>
 				<br />
-				<Select
-					showSearch
-					disabled={noParticipants}
-					style={{ width: 200 }}
-					placeholder="Whom are you?"
-					optionFilterProp="children"
-					filterOption={(input, option) =>
-						option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
-				>
-					{participants.map((p, k) => (
-						<Option value={p} key={k}>
-							{p}
-						</Option>
-					))}
-				</Select>
 				<Search
 					placeholder="Search for a word"
 					onSearch={showSearchWordOccurrences}

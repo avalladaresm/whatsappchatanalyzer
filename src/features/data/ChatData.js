@@ -4,25 +4,30 @@ import 'react-chat-elements-av/dist/main.css';
 import _ from 'lodash';
 import HashTable from '../hashtable/HashTable';
 import Dashboard from '../dashboard/Dashboard';
+import Mayre from 'mayre';
+import { Modal, Select } from 'antd';
+const Option = Select.Option;
 
 class ChatData extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			words: 0,
-			visible: false
+			visible: false,
+			loadDashboard: false,
+			selectedUser: '',
+			globalData: ''
 		};
 	}
 
-	showModal = () => {
-		this.setState({
-			visible: true
-		});
-	};
+	componentDidMount() {
+		this.setState({ globalData: this.justaTest(), visible: true });
+	}
 
-	handleCancel = () => {
+	handleOk = () => {
 		this.setState({
-			visible: false
+			visible: false,
+			loadDashboard: true
 		});
 	};
 
@@ -310,7 +315,7 @@ class ChatData extends React.Component {
 		let data = [];
 		let inner = {};
 		let count = 0;
-		let test = this.justaTest();
+		let test = this.state.globalData;
 		let participants = this.getParticipants();
 
 		for (let i = 0; i < participants.length; i++) {
@@ -329,7 +334,7 @@ class ChatData extends React.Component {
 	};
 
 	arrayOfObjectsOfCountOfMessagesPerDate = () => {
-		let test = this.justaTest();
+		let test = this.state.globalData;
 		let data = [];
 		let info = { date: '', messagesPerSender: {}, messageData: { time: [], sender: [], content: [] }, messages: 0 };
 		let dateCounter = 0;
@@ -486,7 +491,7 @@ class ChatData extends React.Component {
 				}
 			}
 		}
-		
+
 		return data;
 	};
 
@@ -555,20 +560,54 @@ class ChatData extends React.Component {
 		return t;
 	};
 
+	onUserChange = (value) => {
+		this.setState({ selectedUser: value });
+	};
+
 	render() {
+		const participants = this.getParticipants();
+		const noParticipants = participants.length ? false : true;
+
 		return (
 			<div>
-				<Dashboard
-					arrayOfDatesPerChatLine={this.arrayOfDatesPerChatLine()}
-					arrayOfObjectsOfCountOfMessagesPerDate={this.arrayOfObjectsOfCountOfMessagesPerDate()}
-					arrayOfObjectsOfDateTextPositionTypeForChatComponentByDate={this.arrayOfObjectsOfDateTextPositionTypeForChatComponentByDate()}
-					arrayOfObjectsOfDateTextPositionTypeForChatComponent={this.arrayOfObjectsOfDateTextPositionTypeForChatComponent()}
-					countOfTotalMessagesPerSender={this.countOfTotalMessagesPerSender()}
-					showSearchWordOccurrences={(value) => this.showSearchWordOccurrences(value)}
-					participants={this.getParticipants()}
-					participantsJoined={this.getParticipantsJoined()}
-					countOfMessagesPerSenderPerDate={this.countOfMessagesPerSenderPerDate()}
-					justaTest={this.justaTest()}
+				<Mayre
+					of={
+						<Modal title="Select yourself" centered visible={this.state.visible} onOk={this.handleOk}>
+							<Select
+								showSearch
+								onChange={this.onUserChange}
+								disabled={noParticipants}
+								style={{ width: 200 }}
+								placeholder="Whom are you?"
+								optionFilterProp="children"
+								filterOption={(input, option) =>
+									option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0}
+							>
+								{participants.map((p, k) => (
+									<Option value={p} key={k}>
+										{p}
+									</Option>
+								))}
+							</Select>
+						</Modal>
+					}
+					or={
+						<div>
+							<p>Selected user: {this.state.selectedUser}</p>
+							<Dashboard
+								arrayOfDatesPerChatLine={this.arrayOfDatesPerChatLine()}
+								arrayOfObjectsOfCountOfMessagesPerDate={this.arrayOfObjectsOfCountOfMessagesPerDate()}
+								//arrayOfObjectsOfDateTextPositionTypeForChatComponentByDate={this.arrayOfObjectsOfDateTextPositionTypeForChatComponentByDate()}
+								arrayOfObjectsOfDateTextPositionTypeForChatComponent={this.arrayOfObjectsOfDateTextPositionTypeForChatComponent()}
+								countOfTotalMessagesPerSender={this.countOfTotalMessagesPerSender()}
+								showSearchWordOccurrences={(value) => this.showSearchWordOccurrences(value)}
+								participants={this.getParticipants()}
+								participantsJoined={this.getParticipantsJoined()}
+								countOfMessagesPerSenderPerDate={this.countOfMessagesPerSenderPerDate()}
+							/>
+						</div>
+					}
+					when={!this.state.loadDashboard}
 				/>
 			</div>
 		);
