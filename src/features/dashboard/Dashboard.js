@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Card, DatePicker, Descriptions, Input, Modal, Button, Radio, Affix } from 'antd';
+import { Card, DatePicker, Descriptions, Input, Modal, Button, Radio, Affix, message } from 'antd';
 import { Chart, Tooltip, Axis, Line, Legend } from 'viser-react';
 import { MessageBox, SystemMessage } from 'react-chat-elements-av';
+import InfiniteScroll from 'react-infinite-scroller';
 import Mayre from 'mayre';
 import moment from 'moment';
 import 'react-chat-elements-av/dist/main.css';
@@ -21,14 +22,61 @@ class Dashboard extends React.Component {
 		this.state = {
 			words: 0,
 			visible: false,
-			showGraph: 1
+			showGraph: 1,
+			page: 0,
+			hasMore: true,
+			loading: false,
+			isShowingMessages: false,
+			allMessages: [],
+			messagesToShow: [],
+			datesChanged: 0
 		};
 	}
 
 	showChatModal = () => {
-		this.setState({
-			visible: true
-		});
+		let allMessages = this.props.messagesToDisplayOnChatComponent;
+		let temp = [];
+		if (allMessages.length > 0) {
+			if (!this.state.isShowingMessages || this.props.datesChanged !== this.state.datesChanged) {
+				let range = [ 0, 20 ];
+				for (let i = range[0]; i < range[1]; i++) {
+					if (allMessages[i]) {
+						temp.push(allMessages[i]);
+					} else {
+						break;
+					}
+				}
+
+				this.setState({
+					visible: true,
+					allMessages: this.props.messagesToDisplayOnChatComponent,
+					page: 0,
+					messagesToShow: temp,
+					isShowingMessages: true,
+					datesChanged: this.props.datesChanged,
+					hasMore: true
+				});
+			} else {
+				let range = [ 0, (this.state.page + 1) * 20 ];
+				for (let i = range[0]; i < range[1]; i++) {
+					if (allMessages[i]) {
+						temp.push(allMessages[i]);
+					} else {
+						break;
+					}
+				}
+
+				this.setState({
+					visible: true,
+					allMessages: this.props.messagesToDisplayOnChatComponent,
+					messagesToShow: temp,
+					isShowingMessages: true,
+					datesChanged: this.props.datesChanged
+				});
+			}
+		} else {
+			message.error('Whoops! No messages were found, try selecting a date range with messages on it!');
+		}
 	};
 
 	handleCancel = () => {
@@ -41,6 +89,47 @@ class Dashboard extends React.Component {
 		this.setState({ showGraph: e.target.value });
 	};
 
+	getAllMessages = () => {
+		let { allMessages } = this.state;
+		let remainingMessagesToShow = allMessages.length - this.state.messagesToShow.length;
+		let range = [
+			this.state.page * 20,
+			remainingMessagesToShow <= 20
+				? (this.state.page + 1) * 20 - (20 - remainingMessagesToShow)
+				: (this.state.page + 1) * 20
+		];
+		let temp = [];
+		if (this.state.page > 0) {
+			for (let i = range[0]; i < range[1]; i++) {
+				temp.push(allMessages[i]);
+			}
+		}
+		return temp;
+	};
+
+	handleInfiniteOnLoad = () => {
+		let { messagesToShow } = this.state;
+		this.setState({
+			loading: true
+		});
+		if (messagesToShow.length >= this.state.allMessages.length) {
+			message.info('All messages loaded.');
+
+			this.setState({
+				hasMore: false,
+				loading: false
+			});
+			return;
+		}
+		let temp = this.getAllMessages();
+		messagesToShow = messagesToShow.concat(temp);
+		this.setState({
+			messagesToShow: messagesToShow,
+			page: this.state.page + 1,
+			loading: false
+		});
+	};
+
 	render() {
 		let {
 			arrayOfDatesPerChatLine,
@@ -50,8 +139,7 @@ class Dashboard extends React.Component {
 			participants,
 			participantsJoined,
 			totalMessages,
-			datesWithMessages,
-			messagesToDisplayOnChatComponent
+			datesWithMessages
 		} = this.props;
 		const uniqDates = _.uniq(arrayOfDatesPerChatLine);
 		let p = () => {
@@ -119,7 +207,7 @@ class Dashboard extends React.Component {
 				<p>{this.state.words}</p>
 				<br />
 				<RangePicker
-					defaultValue={[ moment()]}
+					defaultValue={[ moment() ]}
 					format={dateFormat}
 					inputReadOnly
 					onChange={datesWithMessages}
@@ -198,18 +286,25 @@ class Dashboard extends React.Component {
 					footer={null}
 					className="chatModal"
 				>
-					{messagesToDisplayOnChatComponent.map((message, key) => {
-						return (
-							<MessageBox
-								key={key}
-								position={message.position}
-								type={message.type}
-								text={message.text}
-								dateString={message.date}
-							/>
-						);
-					})}
-
+					<InfiniteScroll
+						initialLoad={false}
+						pageStart={0}
+						loadMore={this.handleInfiniteOnLoad}
+						hasMore={!this.state.loading && this.state.hasMore}
+						useWindow={false}
+					>
+						{this.state.messagesToShow.map((message, key) => {
+							return (
+								<MessageBox
+									key={key}
+									position={message.position}
+									type={message.type}
+									text={message.text}
+									dateString={message.date}
+								/>
+							);
+						})}
+					</InfiniteScroll>
 					<SystemMessage type="text" text={'End of conversation'} />
 				</Modal>
 			</div>
@@ -227,7 +322,8 @@ Dashboard.propTypes = {
 	countOfMessagesPerSenderPerDate: PropTypes.array,
 	totalMessages: PropTypes.number,
 	datesWithMessages: PropTypes.func,
-	messagesToDisplayOnChatComponent: PropTypes.array
+	messagesToDisplayOnChatComponent: PropTypes.array,
+	datesChanged: PropTypes.number
 };
 
 export default Dashboard;

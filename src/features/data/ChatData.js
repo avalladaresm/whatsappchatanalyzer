@@ -18,7 +18,8 @@ class ChatData extends React.Component {
 			loadDashboard: false,
 			selectedUser: '',
 			globalData: '',
-			messagesToDisplayOnChatComponent: []
+			messagesToDisplayOnChatComponent: [],
+			datesChanged: 0
 		};
 	}
 
@@ -495,12 +496,11 @@ class ChatData extends React.Component {
 							position: messagesByDate[i].messageData.sender[k] === selectedUser ? 'right' : 'left',
 							type: 'text'
 						});
-						
 					}
 				}
 			}
 		}
-		this.setState({ messagesToDisplayOnChatComponent: data });
+		this.setState({ messagesToDisplayOnChatComponent: data, datesChanged: this.state.datesChanged + 1 });
 	};
 
 	singleChatBuffer = () => {
@@ -574,7 +574,13 @@ class ChatData extends React.Component {
 			<div>
 				<Mayre
 					of={
-						<Modal title="Select yourself" centered visible={this.state.visible} onOk={this.handleOk}>
+						<Modal
+							title="Select yourself"
+							centered
+							visible={this.state.visible}
+							onOk={this.handleOk}
+							cancelButtonProps={{ disabled: true }}
+						>
 							<Select
 								showSearch
 								onChange={this.onUserChange}
@@ -607,6 +613,7 @@ class ChatData extends React.Component {
 								totalMessages={this.state.globalData.total}
 								datesWithMessages={(date, dateString) => this.datesWithMessages(date, dateString)}
 								messagesToDisplayOnChatComponent={this.state.messagesToDisplayOnChatComponent}
+								datesChanged={this.state.datesChanged}
 							/>
 						</div>
 					}
