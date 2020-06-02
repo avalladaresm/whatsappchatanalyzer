@@ -5,6 +5,7 @@ import _ from 'lodash';
 import HashTable from '../hashtable/HashTable';
 import Dashboard from '../dashboard/Dashboard';
 import Mayre from 'mayre';
+import moment from 'moment';
 import { Modal, Select } from 'antd';
 const Option = Select.Option;
 
@@ -16,7 +17,8 @@ class ChatData extends React.Component {
 			visible: false,
 			loadDashboard: false,
 			selectedUser: '',
-			globalData: ''
+			globalData: '',
+			messagesToDisplayOnChatComponent: []
 		};
 	}
 
@@ -201,7 +203,7 @@ class ChatData extends React.Component {
 				if (individualMessage[pointerInMessage] === ',') {
 					++dateDelimCount;
 					if (dateDelimCount < 2) {
-						data.date.push(tempIndividualMessage.slice(0, pointerInMessage));
+						data.date.push(moment(tempIndividualMessage.slice(0, pointerInMessage)).format('MM/DD/YY'));
 						pointerInMessageForTime = pointerInMessage + 2;
 
 						for (let j = pointerInMessageForTime; j < pointerInMessageForTime + 10; j++) {
@@ -336,7 +338,12 @@ class ChatData extends React.Component {
 	arrayOfObjectsOfCountOfMessagesPerDate = () => {
 		let test = this.state.globalData;
 		let data = [];
-		let info = { date: '', messagesPerSender: {}, messageData: { time: [], sender: [], content: [] }, messages: 0 };
+		let info = {
+			date: '',
+			messagesPerSender: {},
+			messageData: { time: [], sender: [], content: [], date: '' },
+			messages: 0
+		};
 		let dateCounter = 0;
 		let temp = [];
 		let temp2 = [];
@@ -350,11 +357,13 @@ class ChatData extends React.Component {
 				info.messageData.time.push(test.time[i]);
 				info.messageData.sender.push(test.sender[i]);
 				info.messageData.content.push(test.content[i]);
+				info.messageData.date = test.date[i];
 				++dateCounter;
 			} else {
 				info.messageData.time.push(test.time[i]);
 				info.messageData.sender.push(test.sender[i]);
 				info.messageData.content.push(test.content[i]);
+				info.messageData.date = test.date[i];
 				info.messages = dateCounter + 1;
 				dateCounter = 0;
 			}
@@ -362,7 +371,7 @@ class ChatData extends React.Component {
 			if (dateCounter === 0) {
 				info.date = test.date[i];
 				data.push(info);
-				info = { date: '', messageData: { time: [], sender: [], content: [] }, messages: 0 };
+				info = { date: '', messageData: { time: [], sender: [], content: [], date: '' }, messages: 0 };
 			}
 		}
 
@@ -388,22 +397,6 @@ class ChatData extends React.Component {
 				data[i][keys[j]] = values[j];
 			}
 			temp = [];
-		}
-
-		return data;
-	};
-
-	arrayOfObjectsOfDateTextPositionTypeForChatComponent = () => {
-		let { globalData, selectedUser } = this.state;
-		let data = [];
-
-		for (let i = 0; i < globalData.total; i++) {
-			data.push({
-				date: globalData.time[i],
-				text: globalData.content[i], //messageContent
-				position: globalData.sender[i] === selectedUser ? 'right' : 'left',
-				type: 'text'
-			});
 		}
 
 		return data;
@@ -475,39 +468,40 @@ class ChatData extends React.Component {
 		return data;
 	};
 
-	arrayOfObjectsOfDateTextPositionTypeForChatComponentByDate = () => {
-		/*
-			Had some hardcoded values that only worked with one specific chat,
-			which I was using for testing purposes. Will update function in 
-			further releases... In the mean time, chat view won't be working.
-		*/
-	};
-
-	messagesToDisplay = (date, dateString) => {
+	datesWithMessages = (date, dateString) => {
 		if (!dateString) {
 			return [];
 		}
-		const messagesByDate = this.arrayOfObjectsOfDateTextPositionTypeForChatComponentByDate();
+		let { selectedUser } = this.state;
+
+		const messagesByDate = this.arrayOfObjectsOfCountOfMessagesPerDate();
+
 		const initialDate = dateString[0];
 		const endDate = dateString[1];
+		const selectedDates = [];
+		for (let m = moment(initialDate); m.diff(endDate, 'days') <= 0; m.add(1, 'days')) {
+			selectedDates.push(m.format('MM/DD/YY'));
+		}
+
 		let data = [];
 
-		for (let i = 0; i < messagesByDate.length; i++) {
-			if (initialDate === messagesByDate[i].date) {
-				for (let j = 0; j < messagesByDate[i].messages.length; j++) {
-					data.push(messagesByDate[i].messages[j]);
+		for (let j = 0; j < selectedDates.length; j++) {
+			for (let i = 0; i < messagesByDate.length; i++) {
+				if (selectedDates[j] === messagesByDate[i].date) {
+					for (let k = 0; k < messagesByDate[i].messages; k++) {
+						data.push({
+							date: messagesByDate[i].messageData.time[k],
+							text: messagesByDate[i].messageData.content[k], //messageContent
+							position: messagesByDate[i].messageData.sender[k] === selectedUser ? 'right' : 'left',
+							type: 'text'
+						});
+						
+					}
 				}
 			}
 		}
-
-		return data;
+		this.setState({ messagesToDisplayOnChatComponent: data });
 	};
-
-	onChange = (date, dateString) => {
-		console.log(date, dateString);
-	};
-
-	averageMessage;
 
 	singleChatBuffer = () => {
 		return _.join(this.arrayOfMessageTextPerChatLine(), ' ');
@@ -605,14 +599,14 @@ class ChatData extends React.Component {
 							<Dashboard
 								arrayOfDatesPerChatLine={this.arrayOfDatesPerChatLine()}
 								arrayOfObjectsOfCountOfMessagesPerDate={this.arrayOfObjectsOfCountOfMessagesPerDate()}
-								//arrayOfObjectsOfDateTextPositionTypeForChatComponentByDate={this.arrayOfObjectsOfDateTextPositionTypeForChatComponentByDate()}
-								arrayOfObjectsOfDateTextPositionTypeForChatComponent={this.arrayOfObjectsOfDateTextPositionTypeForChatComponent()}
 								countOfTotalMessagesPerSender={this.countOfTotalMessagesPerSender()}
 								showSearchWordOccurrences={(value) => this.showSearchWordOccurrences(value)}
 								participants={this.getParticipants()}
 								participantsJoined={this.getParticipantsJoined()}
 								countOfMessagesPerSenderPerDate={this.countOfMessagesPerSenderPerDate()}
 								totalMessages={this.state.globalData.total}
+								datesWithMessages={(date, dateString) => this.datesWithMessages(date, dateString)}
+								messagesToDisplayOnChatComponent={this.state.messagesToDisplayOnChatComponent}
 							/>
 						</div>
 					}

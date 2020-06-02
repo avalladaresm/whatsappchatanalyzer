@@ -45,12 +45,13 @@ class Dashboard extends React.Component {
 		let {
 			arrayOfDatesPerChatLine,
 			arrayOfObjectsOfCountOfMessagesPerDate,
-			arrayOfObjectsOfDateTextPositionTypeForChatComponent,
 			countOfTotalMessagesPerSender,
 			showSearchWordOccurrences,
 			participants,
 			participantsJoined,
-			totalMessages
+			totalMessages,
+			datesWithMessages,
+			messagesToDisplayOnChatComponent
 		} = this.props;
 		const uniqDates = _.uniq(arrayOfDatesPerChatLine);
 		let p = () => {
@@ -118,9 +119,10 @@ class Dashboard extends React.Component {
 				<p>{this.state.words}</p>
 				<br />
 				<RangePicker
-					defaultValue={[ moment('9/7/17', dateFormat), moment('9/7/17', dateFormat) ]}
+					defaultValue={[ moment()]}
 					format={dateFormat}
-					onChange={this.messagesToDisplay}
+					inputReadOnly
+					onChange={datesWithMessages}
 					dateRender={(current) => {
 						const style = {};
 						for (let i = 0; i < uniqDates.length; i++) {
@@ -196,15 +198,17 @@ class Dashboard extends React.Component {
 					footer={null}
 					className="chatModal"
 				>
-					{arrayOfObjectsOfDateTextPositionTypeForChatComponent.map((message, key) => (
-						<MessageBox
-							key={key}
-							position={message.position}
-							type={message.type}
-							text={message.text}
-							dateString={message.date}
-						/>
-					))}
+					{messagesToDisplayOnChatComponent.map((message, key) => {
+						return (
+							<MessageBox
+								key={key}
+								position={message.position}
+								type={message.type}
+								text={message.text}
+								dateString={message.date}
+							/>
+						);
+					})}
 
 					<SystemMessage type="text" text={'End of conversation'} />
 				</Modal>
@@ -216,14 +220,14 @@ class Dashboard extends React.Component {
 Dashboard.propTypes = {
 	arrayOfDatesPerChatLine: PropTypes.array,
 	arrayOfObjectsOfCountOfMessagesPerDate: PropTypes.array,
-	arrayOfObjectsOfDateTextPositionTypeForChatComponentByDate: PropTypes.array,
-	arrayOfObjectsOfDateTextPositionTypeForChatComponent: PropTypes.array,
 	countOfTotalMessagesPerSender: PropTypes.object,
 	showSearchWordOccurrences: PropTypes.func,
 	participants: PropTypes.array,
 	participantsJoined: PropTypes.array,
 	countOfMessagesPerSenderPerDate: PropTypes.array,
-	totalMessages: PropTypes.number
+	totalMessages: PropTypes.number,
+	datesWithMessages: PropTypes.func,
+	messagesToDisplayOnChatComponent: PropTypes.array
 };
 
 export default Dashboard;
