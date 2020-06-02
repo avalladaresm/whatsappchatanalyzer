@@ -135,7 +135,7 @@ class Dashboard extends React.Component {
 							}
 						}
 						return (
-							<div className="ant-calendar-date" style={style}>
+							<div className="ant-picker-cell-inner" style={style}>
 								{current.date()}
 							</div>
 						);
