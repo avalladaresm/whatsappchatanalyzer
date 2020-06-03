@@ -29,19 +29,24 @@ class Dashboard extends React.Component {
 			isShowingMessages: false,
 			allMessages: [],
 			messagesToShow: [],
-			datesChanged: 0
+			datesChanged: 0,
+			dateToShow: ''
 		};
 	}
 
 	showChatModal = () => {
 		let allMessages = this.props.messagesToDisplayOnChatComponent;
 		let temp = [];
+		let date = '';
 		if (allMessages.length > 0) {
 			if (!this.state.isShowingMessages || this.props.datesChanged !== this.state.datesChanged) {
 				let range = [ 0, 20 ];
 				for (let i = range[0]; i < range[1]; i++) {
 					if (allMessages[i]) {
 						temp.push(allMessages[i]);
+						if (allMessages[i].date) {
+							date = allMessages[i].date;
+						}
 					} else {
 						break;
 					}
@@ -54,13 +59,17 @@ class Dashboard extends React.Component {
 					messagesToShow: temp,
 					isShowingMessages: true,
 					datesChanged: this.props.datesChanged,
-					hasMore: true
+					hasMore: true,
+					dateToShow: date
 				});
 			} else {
 				let range = [ 0, (this.state.page + 1) * 20 ];
 				for (let i = range[0]; i < range[1]; i++) {
 					if (allMessages[i]) {
 						temp.push(allMessages[i]);
+						/* if (allMessages[i].date) {
+							date = allMessages[i].date;
+						} */
 					} else {
 						break;
 					}
@@ -109,6 +118,7 @@ class Dashboard extends React.Component {
 
 	handleInfiniteOnLoad = () => {
 		let { messagesToShow } = this.state;
+		let date = '';
 		this.setState({
 			loading: true
 		});
@@ -123,10 +133,16 @@ class Dashboard extends React.Component {
 		}
 		let temp = this.getAllMessages();
 		messagesToShow = messagesToShow.concat(temp);
+		for (let i = 0; i < messagesToShow.length; i++) {
+			if (messagesToShow[i].date) {
+				date = messagesToShow[i].date;
+			}
+		}
 		this.setState({
 			messagesToShow: messagesToShow,
 			page: this.state.page + 1,
-			loading: false
+			loading: false,
+			dateToShow: date
 		});
 	};
 
@@ -279,8 +295,9 @@ class Dashboard extends React.Component {
 					}
 					when={this.state.showGraph === 1}
 				/>
+
 				<Modal
-					title="Chat View"
+					title={'Chat View - ' + this.state.dateToShow}
 					visible={this.state.visible}
 					onCancel={this.handleCancel}
 					footer={null}
@@ -294,13 +311,15 @@ class Dashboard extends React.Component {
 						useWindow={false}
 					>
 						{this.state.messagesToShow.map((message, key) => {
-							return (
+							return message.date ? (
+								<SystemMessage type="text" text={message.date} />
+							) : (
 								<MessageBox
 									key={key}
 									position={message.position}
 									type={message.type}
 									text={message.text}
-									dateString={message.date}
+									dateString={message.time}
 								/>
 							);
 						})}

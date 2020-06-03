@@ -489,9 +489,10 @@ class ChatData extends React.Component {
 		for (let j = 0; j < selectedDates.length; j++) {
 			for (let i = 0; i < messagesByDate.length; i++) {
 				if (selectedDates[j] === messagesByDate[i].date) {
+					data.push({ date: moment(messagesByDate[i].date).format('ddd, MMM Do YYYY') });
 					for (let k = 0; k < messagesByDate[i].messages; k++) {
 						data.push({
-							date: messagesByDate[i].messageData.time[k],
+							time: messagesByDate[i].messageData.time[k],
 							text: messagesByDate[i].messageData.content[k], //messageContent
 							position: messagesByDate[i].messageData.sender[k] === selectedUser ? 'right' : 'left',
 							type: 'text'
