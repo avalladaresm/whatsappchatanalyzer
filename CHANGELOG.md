@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On the Messages per person per day graph, labels are not displayed correctly when using the Mayre component
 - System messages in chat such as `<Sender name> security code changed. Tap for more info.` and `Messages to this chat and calls are now secured with end-to-end encryption. Tap for more info.` are not supported yet, so if your exported chat file has them, the file will not be loaded.
 - Chat view doesn't show separation between days
+- Date updating while scrolling on chat view's modal title only works when opened for the first time after setting a new date range. If modal is closed and opened again without changing the date range, the last date stored in the state will be displayed, not updating while scrolling.
 
 ## [0.0.2] - 2020-06-01
 ### Added
