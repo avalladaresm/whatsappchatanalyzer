@@ -15,8 +15,6 @@
 
 ### Setup
 
-- If you want more syntax highlighting, format your code like this:
-
 > install npm packages first
 
 ```shell

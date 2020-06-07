@@ -1,7 +1,21 @@
 .chatModal {
-    top: 20px;
-    .ant-modal-body  {
-        overflow-y: scroll;
-        height: 75vh;
-    }
+	top: 20px;
+	.ant-modal-body {
+		overflow-y: scroll;
+		height: 75vh;
+	}
 }
+
+.cardForHeatmap {
+	.ant-card-body {
+		height: auto;
+		width: auto;
+	}
+}
+
+/* @media only screen and (max-width: 1000px) {
+	.divchart {
+		transform: rotate(90deg);
+		height: auto;
+	}
+} */

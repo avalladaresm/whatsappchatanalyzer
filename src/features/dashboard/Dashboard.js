@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Card, DatePicker, Descriptions, Input, Modal, Button, Radio, Affix, message } from 'antd';
-import { Chart, Tooltip, Axis, Line, Legend } from 'viser-react';
+import { Chart as ViserChart, Tooltip, Axis, Line, Legend } from 'viser-react';
 import { MessageBox, SystemMessage } from 'react-chat-elements-av';
+import Chart from 'react-google-charts';
 import InfiniteScroll from 'react-infinite-scroller';
 import Mayre from 'mayre';
 import moment from 'moment';
@@ -152,19 +153,12 @@ class Dashboard extends React.Component {
 			arrayOfObjectsOfCountOfMessagesPerDate,
 			countOfTotalMessagesPerSender,
 			showSearchWordOccurrences,
-			participants,
 			participantsJoined,
 			totalMessages,
-			datesWithMessages
+			datesWithMessages,
+			dataForCalenderHeatmap
 		} = this.props;
 		const uniqDates = _.uniq(arrayOfDatesPerChatLine);
-		let p = () => {
-			for (let i = 0; i < participants.length; i++) {
-				participants[i].replace(/ /g, '');
-			}
-			return participants;
-		};
-
 		const label = {
 			textStyle: {
 				fill: '#aaaaaa'
@@ -195,6 +189,21 @@ class Dashboard extends React.Component {
 				max: 1
 			}
 		];
+
+		let header = [
+			[
+				{
+					type: 'date',
+					id: 'date'
+				},
+				{
+					type: 'number',
+					id: 'messages'
+				}
+			]
+		];
+
+		const configForCalendarHeatmap = header.concat(dataForCalenderHeatmap);
 
 		return (
 			<div>
@@ -263,7 +272,7 @@ class Dashboard extends React.Component {
 				<Mayre
 					of={
 						<Card title="Total messages per day over time">
-							<Chart
+							<ViserChart
 								forceFit
 								data={data}
 								height={400}
@@ -279,23 +288,63 @@ class Dashboard extends React.Component {
 								<Axis dataKey="date" label={labelFormat} />
 								<Axis dataKey="messages" label={label} />
 								<Line position="date*messages" />
-							</Chart>
+							</ViserChart>
 						</Card>
 					}
 					or={
 						<Card title="Messages per person per day">
-							<Chart forceFit data={data2} height={400} scale={scale}>
+							<ViserChart forceFit data={data2} height={400} scale={scale}>
 								<Legend />
 								<Tooltip crosshairs={true} />
 								<Axis />
 								{/* <Axis dataKey="messages" label={this.label} /> */}
 								<Line position="date*messages" color="person" />
-							</Chart>
+							</ViserChart>
 						</Card>
 					}
 					when={this.state.showGraph === 1}
 				/>
-
+				<Card title="Heatmap" className="cardForHeatmap">
+					<div className="divchart">
+						<Chart
+							chartType="Calendar"
+							width="100%"
+							height="100vh"
+							data={configForCalendarHeatmap}
+							options={{
+								title: 'Messages heatmap',
+								noDataPattern: {
+									backgroundColor: '#858585',
+									color: '#c9c9c9'
+								},
+								calendar: {
+									cellSize: 25,
+									focusedCellColor: {
+										stroke: '#0000ff',
+										strokeOpacity: 1,
+										strokeWidth: 1
+									},
+									monthLabel: {
+										fontName: 'Sans-serif',
+										fontSize: 20,
+										bold: true
+									},
+									monthOutlineColor: {
+										stroke: '#00003d',
+										strokeOpacity: 0.8,
+										strokeWidth: 2.5
+									},
+									unusedMonthOutlineColor: {
+										stroke: '#000',
+										strokeOpacity: 0.8,
+										strokeWidth: 1
+									},
+									underMonthSpace: 16
+								}
+							}}
+						/>
+					</div>
+				</Card>
 				<Modal
 					title={'Chat View - ' + this.state.dateToShow}
 					visible={this.state.visible}
@@ -336,13 +385,13 @@ Dashboard.propTypes = {
 	arrayOfObjectsOfCountOfMessagesPerDate: PropTypes.array,
 	countOfTotalMessagesPerSender: PropTypes.object,
 	showSearchWordOccurrences: PropTypes.func,
-	participants: PropTypes.array,
 	participantsJoined: PropTypes.array,
 	countOfMessagesPerSenderPerDate: PropTypes.array,
 	totalMessages: PropTypes.number,
 	datesWithMessages: PropTypes.func,
 	messagesToDisplayOnChatComponent: PropTypes.array,
-	datesChanged: PropTypes.number
+	datesChanged: PropTypes.number,
+	dataForCalenderHeatmap: PropTypes.func
 };
 
 export default Dashboard;

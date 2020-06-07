@@ -341,7 +341,7 @@ class ChatData extends React.Component {
 		let data = [];
 		let info = {
 			date: '',
-			messagesPerSender: {},
+			year: '',
 			messageData: { time: [], sender: [], content: [], date: '' },
 			messages: 0
 		};
@@ -349,7 +349,7 @@ class ChatData extends React.Component {
 		let temp = [];
 		let temp2 = [];
 		let participants = this.getParticipantsJoined();
-
+		let year = '';
 		for (let i = 0; i < test.total; i++) {
 			if (test.date[i] === undefined) {
 				break;
@@ -372,11 +372,18 @@ class ChatData extends React.Component {
 			if (dateCounter === 0) {
 				info.date = test.date[i];
 				data.push(info);
-				info = { date: '', messageData: { time: [], sender: [], content: [], date: '' }, messages: 0 };
+				info = {
+					date: '',
+					year: '',
+					messageData: { time: [], sender: [], content: [], date: '' },
+					messages: 0
+				};
 			}
 		}
 
 		for (let i = 0; i < data.length; i++) {
+			year = moment(data[i].date).format('YYYY');
+			data[i].year = year;
 			for (let j = 0; j < data[i].messageData.sender.length; j++) {
 				temp.push(data[i].messageData.sender[j].replace(/ /g, ''));
 			}
@@ -504,6 +511,16 @@ class ChatData extends React.Component {
 		this.setState({ messagesToDisplayOnChatComponent: data, datesChanged: this.state.datesChanged + 1 });
 	};
 
+	dataForCalenderHeatmap = () => {
+		let datesMessages = this.arrayOfObjectsOfCountOfMessagesPerDate();
+		let data = [];
+
+		for (let i = 0; i < datesMessages.length; i++) {
+			data.push([ new Date(`${datesMessages[i].date}`), datesMessages[i].messages ]);
+		}
+		return data;
+	};
+
 	singleChatBuffer = () => {
 		return _.join(this.arrayOfMessageTextPerChatLine(), ' ');
 	};
@@ -615,6 +632,7 @@ class ChatData extends React.Component {
 								datesWithMessages={(date, dateString) => this.datesWithMessages(date, dateString)}
 								messagesToDisplayOnChatComponent={this.state.messagesToDisplayOnChatComponent}
 								datesChanged={this.state.datesChanged}
+								dataForCalenderHeatmap={this.dataForCalenderHeatmap()}
 							/>
 						</div>
 					}
